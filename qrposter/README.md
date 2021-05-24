@@ -11,7 +11,7 @@ go get  gitee.com/lyhuilin/pkg
 
 在example文件夹中有简单的使用例子
 
-···golang
+
 
 	package main
 	
@@ -77,4 +77,3 @@ go get  gitee.com/lyhuilin/pkg
 		err = poster.Generate()
 		return
 	}
-···
