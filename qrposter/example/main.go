@@ -4,7 +4,7 @@ import (
 	"os"
 	"path"
 
-	"gitee.com/lyhuilin/demo/gogenposter/pkg/qrposter"
+	"gitee.com/lyhuilin/pkg/qrposter"
 
 	"github.com/boombuler/barcode/qr"
 	// "github.com/spf13/viper"
