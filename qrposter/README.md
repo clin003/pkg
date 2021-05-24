@@ -77,3 +77,8 @@ go get  gitee.com/lyhuilin/pkg
 		err = poster.Generate()
 		return
 	}
+
+
+##	参考
+
+https://github.com/mygomod/gogenposter
