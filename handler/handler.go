@@ -13,6 +13,7 @@ type Response struct {
 	Data    interface{} `json:"data"`
 }
 
+// Json
 func SendResponse(c *gin.Context, err error, data interface{}) {
 	code, message := errno.DecodeErr(err)
 
@@ -24,6 +25,13 @@ func SendResponse(c *gin.Context, err error, data interface{}) {
 	})
 }
 
+// Redirect
 func SendRedirect(c *gin.Context, data string) {
 	c.Redirect(http.StatusMovedPermanently, data)
+}
+
+// String
+func SendString(c *gin.Context, data string) {
+	//always return http.StatusOK
+	c.String(http.StatusOK, data)
 }
