@@ -31,7 +31,7 @@ func SendRedirect(c *gin.Context, data string) {
 }
 
 // String
-func SendString(c *gin.Context, data string) {
-	//always return http.StatusOK
-	c.String(http.StatusOK, data)
+func SendString(c *gin.Context, code int, data string) {
+	//http.StatusOK
+	c.String(code, data)
 }
