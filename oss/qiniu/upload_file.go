@@ -89,15 +89,14 @@ func UploadFile(domain, file string, buckername string, accessKey, secretKey str
 		return publicAccessURL, hashMd5, ret.Hash, nil
 	}
 }
-func UploadFileByte(domain, fileUrl, buckername, accessKey, secretKey string, data []byte, isOnly bool) (publicAccessURL, key, hash string, err error) {
-	// data, err := util.GetUrlToByte(fileUrl)
-	// if err != nil {
-	// 	return "", "", "", err
-	// }
-	// localFile := fileUrl
+func UploadFileByte(domain, fileName, buckername, accessKey, secretKey string, data []byte, isOnly bool) (pubURL, key, hash string, err error) {
 	// 	ct := mime.TypeByExtension(filepath.Ext(u))
-	// basename := filepath.Base(fileUrl)
-	basename := util.EncryptMd5(fileUrl)
+	basename := filepath.Base(fileName)
+	if isOnly {
+		basename = util.EncryptMd5(fileName)
+	} else {
+		basename = util.EncryptMd5Byte(data)
+	}
 
 	upToken := getUploadToken(buckername, accessKey, secretKey)
 
@@ -128,19 +127,19 @@ func UploadFileByte(domain, fileUrl, buckername, accessKey, secretKey string, da
 	}
 	fmt.Println("k2:", ret.Key, ret.Hash)
 
-	publicAccessURL = storage.MakePublicURL(domain, basename)
-	fmt.Printf("publicAccessURL:%s\n", publicAccessURL)
+	pubURL = storage.MakePublicURL(domain, basename)
+	fmt.Printf("pubURL:%s\n", pubURL)
 
 	if !isOnly {
-		return publicAccessURL, ret.Key, ret.Hash, nil
+		return pubURL, ret.Key, ret.Hash, nil
 	}
 
 	hashMd5 := util.EncryptMd5(ret.Hash)
 	if err := renameBucketFile(accessKey, secretKey, buckername, ret.Key, hashMd5, true); err != nil {
-		return publicAccessURL, ret.Key, ret.Hash, err
+		return pubURL, ret.Key, ret.Hash, err
 	} else {
-		publicAccessURL = storage.MakePublicURL(domain, hashMd5)
-		return publicAccessURL, hashMd5, ret.Hash, nil
+		pubURL = storage.MakePublicURL(domain, hashMd5)
+		return pubURL, hashMd5, ret.Hash, nil
 	}
 }
 
@@ -149,54 +148,7 @@ func UploadFileUrl(domain, fileUrl string, buckername string, accessKey, secretK
 	if err != nil {
 		return "", "", "", err
 	}
-	// localFile := fileUrl
-	// 	ct := mime.TypeByExtension(filepath.Ext(u))
-	// basename := filepath.Base(fileUrl)
-	basename := util.EncryptMd5(fileUrl)
-
-	upToken := getUploadToken(buckername, accessKey, secretKey)
-
-	cfg := storage.Config{}
-	// 空间对应的机房 可以指定空间对应的Zone(如不指定Zone则会使用自动判断区域)以及其他的一些影响上传的参数。
-	// cfg.Zone = &storage.ZoneHuadong
-	// 是否使用https域名
-	cfg.UseHTTPS = true
-	// 上传是否使用CDN上传加速
-	cfg.UseCdnDomains = false
-
-	// 构建表单上传的对象
-	formUploader := storage.NewFormUploader(&cfg)
-	ret := storage.PutRet{}
-
-	// 可选配置
-	putExtra := storage.PutExtra{
-		Params: map[string]string{
-			"x:name": basename,
-		},
-	}
-
-	dataLen := int64(len(data))
-	err = formUploader.Put(context.Background(), &ret, upToken, basename, bytes.NewReader(data), dataLen, &putExtra)
-	if err != nil {
-		fmt.Println(err)
-		return "", "", "", err
-	}
-	fmt.Println("k2:", ret.Key, ret.Hash)
-
-	publicAccessURL = storage.MakePublicURL(domain, basename)
-	fmt.Printf("publicAccessURL:%s\n", publicAccessURL)
-
-	if !isOnly {
-		return publicAccessURL, ret.Key, ret.Hash, nil
-	}
-
-	hashMd5 := util.EncryptMd5(ret.Hash)
-	if err := renameBucketFile(accessKey, secretKey, buckername, ret.Key, hashMd5, true); err != nil {
-		return publicAccessURL, ret.Key, ret.Hash, err
-	} else {
-		publicAccessURL = storage.MakePublicURL(domain, hashMd5)
-		return publicAccessURL, hashMd5, ret.Hash, nil
-	}
+	return UploadFileByte(domain, fileUrl, buckername, accessKey, secretKey, data, isOnly)
 }
 
 func UploadFileUrlEx(domain, fileUrl string, buckername string, accessKey, secretKey string, isOnly bool, timeOut time.Duration) (publicAccessURL, key, hash string, err error) {
@@ -204,54 +156,7 @@ func UploadFileUrlEx(domain, fileUrl string, buckername string, accessKey, secre
 	if err != nil {
 		return "", "", "", err
 	}
-	// localFile := fileUrl
-	// 	ct := mime.TypeByExtension(filepath.Ext(u))
-	// basename := filepath.Base(fileUrl)
-	basename := util.EncryptMd5(fileUrl)
-
-	upToken := getUploadToken(buckername, accessKey, secretKey)
-
-	cfg := storage.Config{}
-	// 空间对应的机房 可以指定空间对应的Zone(如不指定Zone则会使用自动判断区域)以及其他的一些影响上传的参数。
-	// cfg.Zone = &storage.ZoneHuadong
-	// 是否使用https域名
-	cfg.UseHTTPS = true
-	// 上传是否使用CDN上传加速
-	cfg.UseCdnDomains = false
-
-	// 构建表单上传的对象
-	formUploader := storage.NewFormUploader(&cfg)
-	ret := storage.PutRet{}
-
-	// 可选配置
-	putExtra := storage.PutExtra{
-		Params: map[string]string{
-			"x:name": basename,
-		},
-	}
-
-	dataLen := int64(len(data))
-	err = formUploader.Put(context.Background(), &ret, upToken, basename, bytes.NewReader(data), dataLen, &putExtra)
-	if err != nil {
-		fmt.Println(err)
-		return "", "", "", err
-	}
-	fmt.Println("k2:", ret.Key, ret.Hash)
-
-	publicAccessURL = storage.MakePublicURL(domain, basename)
-	fmt.Printf("publicAccessURL:%s\n", publicAccessURL)
-
-	if !isOnly {
-		return publicAccessURL, ret.Key, ret.Hash, nil
-	}
-
-	hashMd5 := util.EncryptMd5(ret.Hash)
-	if err := renameBucketFile(accessKey, secretKey, buckername, ret.Key, hashMd5, true); err != nil {
-		return publicAccessURL, ret.Key, ret.Hash, err
-	} else {
-		publicAccessURL = storage.MakePublicURL(domain, hashMd5)
-		return publicAccessURL, hashMd5, ret.Hash, nil
-	}
+	return UploadFileByte(domain, fileUrl, buckername, accessKey, secretKey, data, isOnly)
 }
 func renameBucketFile(accessKey, secretKey, buckername, srcKey, destKey string, force bool) error {
 	mac := auth.New(accessKey, secretKey)
