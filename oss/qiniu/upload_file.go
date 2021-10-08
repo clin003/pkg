@@ -41,7 +41,7 @@ func getUploadToken(buckername string, accessKey, secretKey string) string {
 	tokenMap[upToken] = now.Add(7200 * time.Second)
 	return upToken
 }
-func UploadFile(domain, file string, buckername string, accessKey, secretKey string) (publicAccessURL, key, hash string, err error) {
+func UploadFile(domain, file string, buckername string, accessKey, secretKey string, isOnly bool) (publicAccessURL, key, hash string, err error) {
 	localFile := file
 	// 	ct := mime.TypeByExtension(filepath.Ext(u))
 	basename := filepath.Base(file)
@@ -76,7 +76,11 @@ func UploadFile(domain, file string, buckername string, accessKey, secretKey str
 
 	publicAccessURL = storage.MakePublicURL(domain, basename)
 	fmt.Printf("publicAccessURL:%s\n", publicAccessURL)
-	// return publicAccessURL, ret.Key, ret.Hash, nil
+
+	if !isOnly {
+		return publicAccessURL, ret.Key, ret.Hash, nil
+	}
+
 	hashMd5 := util.EncryptMd5(ret.Hash)
 	if err := renameBucketFile(accessKey, secretKey, buckername, ret.Key, hashMd5, true); err != nil {
 		return publicAccessURL, ret.Key, ret.Hash, err
@@ -86,7 +90,7 @@ func UploadFile(domain, file string, buckername string, accessKey, secretKey str
 	}
 }
 
-func UploadFileUrl(domain, fileUrl string, buckername string, accessKey, secretKey string) (publicAccessURL, key, hash string, err error) {
+func UploadFileUrl(domain, fileUrl string, buckername string, accessKey, secretKey string, isOnly bool) (publicAccessURL, key, hash string, err error) {
 	data, err := util.GetUrlToByte(fileUrl)
 	if err != nil {
 		return "", "", "", err
@@ -127,7 +131,11 @@ func UploadFileUrl(domain, fileUrl string, buckername string, accessKey, secretK
 
 	publicAccessURL = storage.MakePublicURL(domain, basename)
 	fmt.Printf("publicAccessURL:%s\n", publicAccessURL)
-	// return publicAccessURL, ret.Key, ret.Hash, nil
+
+	if !isOnly {
+		return publicAccessURL, ret.Key, ret.Hash, nil
+	}
+
 	hashMd5 := util.EncryptMd5(ret.Hash)
 	if err := renameBucketFile(accessKey, secretKey, buckername, ret.Key, hashMd5, true); err != nil {
 		return publicAccessURL, ret.Key, ret.Hash, err
