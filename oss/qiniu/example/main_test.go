@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	. "gitee.com/lyhuilin/pkg/oss/qinniu"
+	. "gitee.com/lyhuilin/pkg/oss/qiniu"
 )
 
 func TestUploadFile(t *testing.T) {

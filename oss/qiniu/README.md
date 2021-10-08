@@ -2,4 +2,4 @@
 
 上传文件到七牛对象存储
 
-	go get gitee.com/lyhuilin/pkg/oss/qinniu
+	go get gitee.com/lyhuilin/pkg/oss/qiniu

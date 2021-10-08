@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	. "gitee.com/lyhuilin/pkg/oss/qinniu"
+	. "gitee.com/lyhuilin/pkg/oss/qiniu"
 )
 
 func main() {
