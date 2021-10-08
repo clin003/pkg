@@ -3,7 +3,8 @@ package qiniu
 import (
 	"bytes"
 	"context"
-	"fmt"
+
+	// "fmt"
 	"path/filepath"
 	"sync"
 	"time"
@@ -69,13 +70,13 @@ func UploadFile(domain, file string, buckername string, accessKey, secretKey str
 	}
 	err = formUploader.PutFile(context.Background(), &ret, upToken, basename, localFile, &putExtra)
 	if err != nil {
-		fmt.Println(err)
+		// fmt.Println(err)
 		return "", "", "", err
 	}
-	fmt.Println(ret.Key, ret.Hash)
+	// fmt.Println(ret.Key, ret.Hash)
 
 	publicAccessURL = storage.MakePublicURL(domain, basename)
-	fmt.Printf("publicAccessURL:%s\n", publicAccessURL)
+	// fmt.Printf("publicAccessURL:%s\n", publicAccessURL)
 
 	if !isOnly {
 		return publicAccessURL, ret.Key, ret.Hash, nil
@@ -122,13 +123,13 @@ func UploadFileByte(domain, fileName, buckername, accessKey, secretKey string, d
 	dataLen := int64(len(data))
 	err = formUploader.Put(context.Background(), &ret, upToken, basename, bytes.NewReader(data), dataLen, &putExtra)
 	if err != nil {
-		fmt.Println(err)
+		// fmt.Println(err)
 		return "", "", "", err
 	}
-	fmt.Println("k2:", ret.Key, ret.Hash)
+	// fmt.Println("k2:", ret.Key, ret.Hash)
 
 	pubURL = storage.MakePublicURL(domain, basename)
-	fmt.Printf("pubURL:%s\n", pubURL)
+	// fmt.Printf("pubURL:%s\n", pubURL)
 
 	if !isOnly {
 		return pubURL, ret.Key, ret.Hash, nil
@@ -175,7 +176,7 @@ func renameBucketFile(accessKey, secretKey, buckername, srcKey, destKey string, 
 	// err := bucketManager.Move(srcBucket, srcKey, destBucket, destKey, force)
 	err := bucketManager.Move(buckername, srcKey, buckername, destKey, force)
 	if err != nil {
-		fmt.Println(err)
+		// fmt.Println(err)
 		return err
 	}
 	return nil
