@@ -3,8 +3,6 @@ package qiniu
 import (
 	"bytes"
 	"context"
-
-	// "fmt"
 	"path/filepath"
 	"sync"
 	"time"
@@ -26,7 +24,7 @@ func getUploadToken(buckername string, accessKey, secretKey string) string {
 
 	now := time.Now()
 	for k, v := range tokenMap {
-		if v.Before(now) {
+		if now.Before(v) {
 			return k
 		}
 	}
