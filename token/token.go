@@ -18,7 +18,9 @@ var (
 //Context is the context of the JSON web token
 type Context struct {
 	ID       uint64
+	UUID     string
 	Username string
+	SafeCode string
 }
 
 //secretFunc validates the secret format.
