@@ -36,10 +36,10 @@ func SendResponse(c *gin.Context, err error, data interface{}) {
 }
 
 type ResponseEx struct {
-	Status int         `json:"status"`
-	Code   int         `json:"code"`
-	Msg    string      `json:"msg"`
-	Data   interface{} `json:"data"`
+	Status int `json:"status"`
+	// Code   int         `json:"code"`
+	Msg  string      `json:"msg"`
+	Data interface{} `json:"data"`
 }
 
 // 返回 Json
@@ -59,9 +59,9 @@ func SendResponseEx(c *gin.Context, err error, data interface{}) {
 	//always return http.StatusOK
 	c.JSON(http.StatusOK, ResponseEx{
 		Status: code,
-		Code:   code,
-		Msg:    message,
-		Data:   data,
+		// Code:   code,
+		Msg:  message,
+		Data: data,
 	})
 }
 
