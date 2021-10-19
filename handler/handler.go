@@ -65,9 +65,14 @@ func SendResponseEx(c *gin.Context, err error, data interface{}) {
 	})
 }
 
-// Redirect
+// Redirect 301
 func SendRedirect(c *gin.Context, data string) {
 	c.Redirect(http.StatusMovedPermanently, data)
+}
+
+// Redirect 302
+func SendRedirect302(c *gin.Context, data string) {
+	c.Redirect(http.StatusFound, data)
 }
 
 // String
