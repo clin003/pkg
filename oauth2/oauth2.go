@@ -1,7 +1,7 @@
 package oauth2
 
 //基本配置
-type OAuthConfg struct {
+type OAuthConfig struct {
 	// ClientID is the application's ID.
 	// 应用ID
 	ClientID string

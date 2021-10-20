@@ -8,7 +8,7 @@ import (
 )
 
 func TestQqAuth(t *testing.T) {
-	qqConf := &OAuthConfg{
+	qqConf := &OAuthConfig{
 		ClientID:     "xxx",
 		ClientSecret: "xxx",
 		RedirectURL:  "https://auth.nav.xin/oauth/qq",

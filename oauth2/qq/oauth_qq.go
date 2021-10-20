@@ -11,7 +11,7 @@ import (
 
 //@ qq 结构 ------------------------------------------------- start
 type OAuth struct {
-	Conf *OAuthConfg
+	Conf *OAuthConfig
 }
 
 type Token struct {
@@ -218,7 +218,7 @@ func (c *OAuth) UserInfo(access_token string, openid string) (*QQUserInfo, error
 }
 
 //构造方法
-func NewAuth(config *OAuthConfg) *OAuth {
+func NewAuth(config *OAuthConfig) *OAuth {
 	return &OAuth{
 		Conf: config,
 	}
