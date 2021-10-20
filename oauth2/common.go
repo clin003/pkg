@@ -1,4 +1,4 @@
-package d3auth
+package oauth2
 
 import (
 	"crypto/tls"
@@ -7,7 +7,7 @@ import (
 	"net/http/cookiejar"
 )
 
-func HttpGet(geturl string) (string, error) {
+func HttpGetByte(geturl string) ([]byte, error) {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
@@ -17,15 +17,41 @@ func HttpGet(geturl string) (string, error) {
 
 	resp, err := client.Get(geturl)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return string(body), nil
+	return body, nil
+}
+func HttpGet(geturl string) (string, error) {
+	if body, err := HttpGetByte(geturl); err != nil {
+		return "", err
+	} else {
+		return string(body), nil
+	}
+
+	// tr := &http.Transport{
+	// 	TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	// }
+	// //http cookie接口
+	// cookieJar, _ := cookiejar.New(nil)
+	// client := &http.Client{Transport: tr, Jar: cookieJar}
+
+	// resp, err := client.Get(geturl)
+	// if err != nil {
+	// 	return "", err
+	// }
+	// defer resp.Body.Close()
+	// body, err := ioutil.ReadAll(resp.Body)
+	// if err != nil {
+	// 	return "", err
+	// }
+
+	// return string(body), nil
 }
 func HttpPost(geturl string) (string, error) {
 	tr := &http.Transport{
