@@ -17,10 +17,14 @@ var (
 
 //Context is the context of the JSON web token
 type Context struct {
-	ID       uint64
+	// 用户id
+	ID uint64
+	// UseIDToken
 	UUID     string
 	Username string
 	SafeCode string
+	// 过期日期时间
+	Expiry time.Time
 }
 
 //secretFunc validates the secret format.
