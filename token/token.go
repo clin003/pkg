@@ -54,7 +54,7 @@ func Parse(tokenString string, secret string) (*Context, error) {
 		ctx.ID = uint64(claims["id"].(float64))
 		ctx.UUID = claims["uuid"].(string)
 		ctx.Username = claims["username"].(string)
-		ctx.Expiry = claims["expiry"].(int64)
+		ctx.Expiry = int64(claims["expiry"].(int64))
 		return ctx, nil
 	} else {
 		return ctx, err
