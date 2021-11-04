@@ -19,10 +19,11 @@ var (
 type Context struct {
 	// 用户id
 	ID uint64
-	// UseIDToken
-	UUID     string
+	// 用户uuid
+	UUID string
+	// 用户名
 	Username string
-	SafeCode string
+	// SafeCode string
 	// 过期日期时间
 	Expiry time.Time
 }
