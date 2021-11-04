@@ -24,8 +24,8 @@ type Context struct {
 	// 用户名
 	Username string
 	// SafeCode string
-	// 过期日期时间
-	Expiry time.Time
+	// 过期日期时间戳 time unix
+	Expiry int64
 }
 
 //secretFunc validates the secret format.
@@ -54,7 +54,7 @@ func Parse(tokenString string, secret string) (*Context, error) {
 		ctx.ID = uint64(claims["id"].(float64))
 		ctx.UUID = claims["uuid"].(string)
 		ctx.Username = claims["username"].(string)
-		ctx.Expiry = claims["expiry"].(time.Time)
+		ctx.Expiry = claims["expiry"].(int64)
 		return ctx, nil
 	} else {
 		return ctx, err
