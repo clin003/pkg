@@ -51,7 +51,9 @@ func Parse(tokenString string, secret string) (*Context, error) {
 		return ctx, err
 	} else if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		ctx.ID = uint64(claims["id"].(float64))
+		ctx.UUID = claims["uuid"].(string)
 		ctx.Username = claims["username"].(string)
+		ctx.Expiry = claims["expiry"].(time.Time)
 		return ctx, nil
 	} else {
 		return ctx, err
@@ -84,7 +86,9 @@ func Sign(ctx *gin.Context, c Context, secret string) (tokenString string, err e
 	//The token content
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":       c.ID,
+		"uuid":     c.UUID,
 		"username": c.Username,
+		"expiry":   c.Expiry,
 		"nbf":      time.Now().Unix(),
 		"iat":      time.Now().Unix(),
 	})
