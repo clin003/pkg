@@ -3,6 +3,7 @@ package qiniu
 import (
 	"bytes"
 	"context"
+	"io/ioutil"
 	"path/filepath"
 	"sync"
 	"time"
@@ -18,6 +19,8 @@ var mu sync.Mutex
 func init() {
 	tokenMap = make(map[string]time.Time)
 }
+
+// 获取文件上传授权token
 func getUploadToken(buckername string, accessKey, secretKey string) string {
 	mu.Lock()
 	defer mu.Unlock()
@@ -40,6 +43,8 @@ func getUploadToken(buckername string, accessKey, secretKey string) string {
 	tokenMap[upToken] = now.Add(7200 * time.Second)
 	return upToken
 }
+
+// 上传文件
 func UploadFile(domain, file string, buckername string, accessKey, secretKey string, isOnly bool) (publicAccessURL, key, hash string, err error) {
 	localFile := file
 	// 	ct := mime.TypeByExtension(filepath.Ext(u))
@@ -87,6 +92,17 @@ func UploadFile(domain, file string, buckername string, accessKey, secretKey str
 		publicAccessURL = storage.MakePublicURL(domain, hashMd5)
 		return publicAccessURL, hashMd5, ret.Hash, nil
 	}
+}
+
+// days := 7
+// days=设置或更新文件的生存时间 天
+// 上传文件v2
+func UploadFileV2(domain, file string, buckername string, accessKey, secretKey string, isOnly bool, days int) (publicAccessURL, key, hash string, err error) {
+	data, err := ioutil.ReadFile(file)
+	if err != nil {
+		return "", "", "", err
+	}
+	return UploadFileByteV2(domain, file, buckername, accessKey, secretKey, data, isOnly, days)
 }
 func UploadFileByte(domain, fileName, buckername, accessKey, secretKey string, data []byte, isOnly bool) (pubURL, key, hash string, err error) {
 	// 	ct := mime.TypeByExtension(filepath.Ext(u))
@@ -142,6 +158,64 @@ func UploadFileByte(domain, fileName, buckername, accessKey, secretKey string, d
 	}
 }
 
+// days := 7
+// days=设置或更新文件的生存时间 天
+// 上传文件切片
+func UploadFileByteV2(domain, fileName, buckername, accessKey, secretKey string, data []byte, isOnly bool, days int) (pubURL, key, hash string, err error) {
+	// 	ct := mime.TypeByExtension(filepath.Ext(u))
+	basename := filepath.Base(fileName)
+	if isOnly {
+		basename = util.EncryptMd5(fileName)
+	} else {
+		basename = util.EncryptMd5Byte(data)
+	}
+
+	upToken := getUploadToken(buckername, accessKey, secretKey)
+
+	cfg := storage.Config{}
+	// 空间对应的机房 可以指定空间对应的Zone(如不指定Zone则会使用自动判断区域)以及其他的一些影响上传的参数。
+	// cfg.Zone = &storage.ZoneHuadong
+	// 是否使用https域名
+	cfg.UseHTTPS = true
+	// 上传是否使用CDN上传加速
+	cfg.UseCdnDomains = false
+
+	// 构建表单上传的对象
+	formUploader := storage.NewFormUploader(&cfg)
+	ret := storage.PutRet{}
+
+	// 可选配置
+	putExtra := storage.PutExtra{
+		Params: map[string]string{
+			"x:name": basename,
+		},
+	}
+
+	dataLen := int64(len(data))
+	err = formUploader.Put(context.Background(), &ret, upToken, basename, bytes.NewReader(data), dataLen, &putExtra)
+	if err != nil {
+		// fmt.Println(err)
+		return "", "", "", err
+	}
+	// fmt.Println("k2:", ret.Key, ret.Hash)
+
+	pubURL = storage.MakePublicURL(domain, basename)
+	// fmt.Printf("pubURL:%s\n", pubURL)
+
+	if !isOnly {
+		return pubURL, ret.Key, ret.Hash, nil
+	}
+
+	hashMd5 := util.EncryptMd5(ret.Hash)
+	if err := renameBucketFile(accessKey, secretKey, buckername, ret.Key, hashMd5, true); err != nil {
+		return pubURL, ret.Key, ret.Hash, err
+	} else {
+		deleteAfterDays(accessKey, secretKey, buckername, hashMd5, days)
+		pubURL = storage.MakePublicURL(domain, hashMd5)
+		return pubURL, hashMd5, ret.Hash, nil
+	}
+}
+
 func UploadFileUrl(domain, fileUrl string, buckername string, accessKey, secretKey string, isOnly bool) (publicAccessURL, key, hash string, err error) {
 	data, err := util.GetUrlToByte(fileUrl)
 	if err != nil {
@@ -157,6 +231,8 @@ func UploadFileUrlEx(domain, fileUrl string, buckername string, accessKey, secre
 	}
 	return UploadFileByte(domain, fileUrl, buckername, accessKey, secretKey, data, isOnly)
 }
+
+// 重命名/移动空间中的文件
 func renameBucketFile(accessKey, secretKey, buckername, srcKey, destKey string, force bool) error {
 	mac := auth.New(accessKey, secretKey)
 
@@ -173,6 +249,30 @@ func renameBucketFile(accessKey, secretKey, buckername, srcKey, destKey string, 
 	// force := true
 	// err := bucketManager.Move(srcBucket, srcKey, destBucket, destKey, force)
 	err := bucketManager.Move(buckername, srcKey, buckername, destKey, force)
+	if err != nil {
+		// fmt.Println(err)
+		return err
+	}
+	return nil
+}
+
+// 设置或更新文件的生存时间
+func deleteAfterDays(accessKey, secretKey, buckername, destKey string, days int) error {
+	if days <= 0 {
+		return nil
+	}
+	mac := auth.New(accessKey, secretKey)
+
+	cfg := storage.Config{
+		// 是否使用https域名进行资源管理
+		UseHTTPS: false,
+	}
+	// 指定空间所在的区域，如果不指定将自动探测
+	// 如果没有特殊需求，默认不需要指定
+	//cfg.Zone=&storage.ZoneHuabei
+	bucketManager := storage.NewBucketManager(mac, &cfg)
+
+	err := bucketManager.DeleteAfterDays(buckername, destKey, days)
 	if err != nil {
 		// fmt.Println(err)
 		return err
