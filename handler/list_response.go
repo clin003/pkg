@@ -8,11 +8,13 @@ type ListResponse struct {
 // https://baidu.gitee.io/amis/zh-CN/components/form/options#%E8%BF%9C%E7%A8%8B%E6%8B%89%E5%8F%96
 // https://baidu.gitee.io/amis/zh-CN/components/form/list-select
 type AmisOptionsList struct {
-	Options []struct {
-		Label string `json:"label"`
-		Value string `json:"value"`
-		Image string `json:"image"`
-	} `json:"options"`
+	Options []AmisOptions `json:"options"`
+}
+
+type AmisOptions struct {
+	Label string `json:"label"`
+	Value string `json:"value"`
+	Image string `json:"image"`
 }
 
 // Request对象：接⼝封装了客户请求信息，如客户请求⽅式、参数、客户使⽤的协议、以 及发出请 求的远程主机信息等，
