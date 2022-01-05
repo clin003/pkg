@@ -12,7 +12,7 @@
 
 
 #### 使用说明
-go get gitee.com/lyhuilin/pkg
+go get -u gitee.com/lyhuilin/pkg
 
 
 
