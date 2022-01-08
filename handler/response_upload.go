@@ -5,7 +5,15 @@ type UploadResponse struct {
 	Filename string `json:"filename"`
 	Value    string `json:"value"`
 	URL      string `json:"url"`
+	Hash     string `json:"hash"`
 }
+
+// type UploadResponseEx struct {
+// 	Filename string `json:"filename"`
+// 	Value    string `json:"value"`
+// 	URL      string `json:"url"`
+// 	Hash     string `json:"hash"`
+// }
 
 // Request对象：接⼝封装了客户请求信息，如客户请求⽅式、参数、客户使⽤的协议、以 及发出请 求的远程主机信息等，
 // 其主要⽅法：
